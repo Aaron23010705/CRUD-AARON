@@ -25,6 +25,21 @@
             android:layout_weight="1"
             android:text="TextView"
             android:textSize="50sp" />
+
+        <ImageView
+            android:id="@+id/imgBorrar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_delete" />
+
+        <ImageView
+            android:id="@+id/imgEditar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:srcCompat="@drawable/ic_editar" />
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

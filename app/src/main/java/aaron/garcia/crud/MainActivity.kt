@@ -18,6 +18,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import modelo.ClaseConexion
 import modelo.dataClassMascotas
+import java.util.UUID
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,6 +56,7 @@ class MainActivity : AppCompatActivity() {
             //El símbolo de pregunta es pq los datos pueden ser nulos
             val statement = objConexion?.createStatement()
             val result = statement?.executeQuery("select * from tbMascotas")!!
+            //Esta variable result yo lo puse mal xd es resulSet pero  me da hueva cambiarla
 
             //en esta variable se añaden TODOS los valores de mascotas
             val mascotas = mutableListOf<dataClassMascotas>()
@@ -62,8 +64,11 @@ class MainActivity : AppCompatActivity() {
             //Recorro todos los registros de la base de datos
             //.next() significa que mientras haya un valor después de ese se va a repetir el proceso
             while (result.next()){
+                val uuid = result.getString("uuid")
                 val nombre = result.getString("nombreMascota")
-                val mascota = dataClassMascotas(nombre)
+                val peso = result.getInt("peso")
+                val edad = result.getInt("edad")
+                val mascota = dataClassMascotas(uuid, nombre, peso, edad)
                 mascotas.add(mascota)
             }
             return mascotas
@@ -88,10 +93,11 @@ class MainActivity : AppCompatActivity() {
                 val objConexion = ClaseConexion().cadenaConexion()
 
                 //2-Creo una variable que contenga un preparestatement
-                val addMascota = objConexion?.prepareStatement("Insert into tbMascotas values (?,?,?)")!!
-                addMascota.setString(1 , txtNombre.text.toString())
-                addMascota.setInt(2, txtPeso.text.toString().toInt())
-                addMascota.setInt(3, txtEdad.text.toString().toInt())
+                val addMascota = objConexion?.prepareStatement("Insert into tbMascotas (uuid, nombremascota, peso, edad) values (?,?,?,?)")!!
+                addMascota.setString(1, UUID.randomUUID().toString())
+                addMascota.setString(2 , txtNombre.text.toString())
+                addMascota.setInt(3, txtPeso.text.toString().toInt())
+                addMascota.setInt(4, txtEdad.text.toString().toInt())
                 addMascota.executeUpdate()
 
 

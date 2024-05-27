@@ -4,6 +4,7 @@ import aaron.garcia.crud.R
 import android.app.AlertDialog
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.EditText
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -12,15 +13,21 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import modelo.ClaseConexion
 import modelo.dataClassMascotas
+import java.util.UUID
 
 //El adaptador es la clase que me ayuda a mostrar los datos,
 class Adaptador(private var Datos: List<dataClassMascotas>) : RecyclerView.Adapter<ViewHolder>() {
 
-    fun ActualizarLista(nuevoLista: List <dataClassMascotas>){
+    fun ActualizarLista(nuevoLista: List<dataClassMascotas>) {
         Datos = nuevoLista
         notifyDataSetChanged()//Esto mnotifica al RecyclerView que hay datos nuevos
     }
-
+//Función para que se actualice en tanto la carta de android como la base de datos
+    fun actualicePantalla (uuid: String, nuevoNombre: String){
+        val index = Datos.indexOfFirst { it.uuid == uuid }
+        Datos[index].nombreMascota = nuevoNombre
+        notifyDataSetChanged()
+    }
     ////////////////// TODO: Eliminar datos
 
     //Lo que pasa aq
@@ -48,6 +55,21 @@ class Adaptador(private var Datos: List<dataClassMascotas>) : RecyclerView.Adapt
         notifyDataSetChanged()
     }
 
+    //TODO: modificar datos///
+    fun actualizarDatos(nuevoNombre: String, uuid:String){
+        GlobalScope.launch(Dispatchers.IO){
+
+            ///1 - creo un objeto de la clase conexion
+            val objConexion = ClaseConexion().cadenaConexion()
+
+            //2 - Creo una variable que tenga un prepareStatement
+            val updateMascota = objConexion?.prepareStatement("Update tbmascotas set nombremascota = ? where uuid = ?")!!
+            updateMascota.setString(1, nuevoNombre)
+            updateMascota.setString(2, uuid)
+            updateMascota.executeUpdate()
+        }
+    }
+
     //on createviewholder es el metodo que nos permite enlazar la carta creada con nuestro recycle view
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val vista =
@@ -73,9 +95,14 @@ holder.imgEditar.setOnClickListener {
     builder.setTitle("Editar")
     builder.setMessage("Estas seguro que quieres editar?")
 
+//Agregar un cuadro de texto para que el usuario escriba el nuevo nombre.
 
-    builder.setPositiveButton("Si") { dialog, which ->
-        dialog.dismiss()
+    val cuadroTexto = EditText(context)
+    cuadroTexto.setHint(mascota.nombreMascota)
+    builder.setView(cuadroTexto)
+
+    builder.setPositiveButton("Actualizar ") { dialog, which ->
+        actualizarDatos(cuadroTexto.text.toString(), mascota.uuid)
     }
     builder.setNegativeButton("no") { dialog, which ->
         dialog.dismiss()

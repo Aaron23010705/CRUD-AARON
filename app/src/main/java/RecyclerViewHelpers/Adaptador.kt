@@ -1,7 +1,9 @@
 package RecyclerViewHelper
 
 import aaron.garcia.crud.R
+import aaron.garcia.crud.detalle_mascota
 import android.app.AlertDialog
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.EditText
@@ -67,6 +69,11 @@ class Adaptador(private var Datos: List<dataClassMascotas>) : RecyclerView.Adapt
             updateMascota.setString(1, nuevoNombre)
             updateMascota.setString(2, uuid)
             updateMascota.executeUpdate()
+            withContext(Dispatchers.Main) {
+                actualicePantalla(uuid, nuevoNombre)
+            }
+
+
         }
     }
 
@@ -133,7 +140,24 @@ holder.imgEditar.setOnClickListener {
 
 
         }
+    //TODO CLIC E IR A LA CARD COMPLETA
+    //Vamos a ir a otra pantalla donde me mostrará todos los datos}
+    //De aqui se van a sacar los nombres que se ponene en el detalle mascota
+holder.itemView.setOnClickListener {
 
+
+    val context = holder.itemView.context
+
+    //Cambiar de pantalla a la pantalla de detalle
+
+    val pantallaDetalle = Intent(context, detalle_mascota::class.java)
+    //Enviar a la otra pantalla todos mis valores
+    pantallaDetalle.putExtra("MascotaUUID", mascota.uuid)
+    pantallaDetalle.putExtra("Nombre", mascota.nombreMascota)
+    pantallaDetalle.putExtra("Peso", mascota.peso)
+    pantallaDetalle.putExtra("Edad", mascota.edad)
+    context.startActivity(pantallaDetalle)
+}
     }
     }
 
